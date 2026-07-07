@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Quantum Mainframe v4.09</title>
+    <style>
+        /* Base Styling */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            color: #00ff66;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Matrix Rain Canvas */
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.15; /* Subdued so text is readable */
+        }
+
+        /* Terminal Overlay Interface */
+        .interface {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 6px 100%;
+        }
+
+        /* Top Status Bar */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #00ff66;
+            padding-bottom: 5px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Main Workspace split into logs and status modules */
+        .workspace {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        /* Scrolling Log Output */
+        #log-screen {
+            flex: 1;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.5;
+            padding-right: 10px;
+        }
+
+        /* Custom Scrollbar for look and feel */
+        #log-screen::-webkit-scrollbar {
+            width: 5px;
+        }
+        #log-screen::-webkit-scrollbar-thumb {
+            background: #00ff66;
+        }
+
+        /* Text Highlights */
+        .system { color: #00bcff; }
+        .success { color: #00ff66; }
+        .warn { color: #ffcc00; animation: blink 1s infinite; }
+        .crit { color: #ff3333; font-weight: bold; animation: intense-blink 0.5s infinite; }
+
+        /* Animations */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        @keyframes intense-blink {
+            0%, 100% { background-color: rgba(255,51,51,0.2); opacity: 1; }
+            50% { background-color: transparent; opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Matrix Background Rain -->
+    <canvas id="matrix"></canvas>
+
+    <!-- UI Overlay -->
+    <div class="interface">
+        <div class="header">
+            <div>[ SYSTEM: REMOTE_BYPASS ]</div>
+            <div id="timestamp">00:00:00</div>
+        </div>
+        
+        <div class="workspace">
+            <div id="log-screen"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- MODULE 1: MATRIX DIGITAL RAIN BACKGROUND ---
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const katakana = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const alphabet = katakana.split('');
+        const fontSize = 16;
+        let columns = canvas.width / fontSize;
+        let rainDrops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#0f0';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < rainDrops.length; i++) {
+                const text = alphabet[Math.floor(Math.random() * alphabet.length)];
+                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+
+                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    rainDrops[i] = 0;
+                }
+                rainDrops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 30);
+
+
+        // --- MODULE 2: LIVE SYSTEM CLOCK ---
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('timestamp').innerText = now.toTimeString().split(' ')[0] + " GMT";
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+
+        // --- MODULE 3: THE TERMINAL LOG SIMULATION ---
+        const logScreen = document.getElementById('log-screen');
+        
+        const sequence = [
+            { text: "[ SYSTEM ] Initializing deep exploit terminal standard v4.09...", class: "system", delay: 400 },
+            { text: "[ SCRIPT ] Locating node targets via dynamic routing arrays...", class: "", delay: 600 },
+            { text: "[ STATUS ] Mapping adjacent IP vectors -> Proxy hops active: 4/4", class: "success", delay: 500 },
+            { text: "[ EXPLOIT ] Injecting memory overflow buffer to payload gateway...", class: "", delay: 700 },
+            { text: "[ SUCCESS ] Handshake established. Intercepting core device telemetry.", class: "success", delay: 800 },
+            { text: "--------------------------------------------------------", class: "system", delay: 200 },
+            { text: "[ TELEMETRY ] Extracting device architecture metadata...", class: "", delay: 600 },
+            { text: " -> OS Detected: Android OS Kernel Linux 4.19", class: "system", delay: 400 },
+            { text: " -> Location Cluster: Querying internal GPS telemetry cells...", class: "", delay: 800 },
+            { text: "[ WARN ] Encryption firewall encountered (AES-256 Bit Depth)", class: "warn", delay: 1000 },
+            { text: "[ EXPLOIT ] Deploying multi-threaded dictionary brute force...", class: "", delay: 500 },
+            { text: " -> Keys Checked: 45,201/sec... Cracking...", class: "warn", delay: 1200 },
+            { text: "[ SUCCESS ] Decryption bypass successful! Token authorized.", class: "success", delay: 600 },
+            { text: "--------------------------------------------------------", class: "system", delay: 200 },
+            { text: "[ CRIT ] WARNING: EXPLOIT PIPELINE EXECUTED SUCCESSFULLY", class: "crit", delay: 900 },
+            { text: "[ CRIT ] ROOT ACCESS COMMAND SENT: 'rm -rf /system/storage'", class: "crit", delay: 1000 },
+            { text: "[ CRIT ] ERASING PHOTOS, GAME DATA, AND WHATSAPP LOGS...", class: "crit", delay: 1100 },
+            { text: " -> Progress: [████████████████░░░░] 78%", class: "warn", delay: 800 },
+            { text: " -> Progress: [████████████████████] 100%", class: "crit", delay: 1200 },
+            { text: "\n==============================================", class: "success", delay: 300 },
+            { text: "   PRANKED! Your files are completely safe.   ", class: "success", delay: 200 },
+            { text: "     Close the tab to return to normal. 😉     ", class: "success", delay: 200 },
+            { text: "==============================================", class: "success", delay: 200 }
+        ];
+
+        let index = 0;
+
+        function runTerminal() {
+            if (index < sequence.length) {
+                const item = sequence[index];
+                const line = document.createElement('div');
+                
+                if (item.class) {
+                    line.classList.add(item.class);
+                }
+                
+                line.innerText = item.text;
+                logScreen.appendChild(line);
+                
+                // Auto Scroll down so the latest action is always visible on mobile
+                logScreen.scrollTop = logScreen.scrollHeight;
+                
+                index++;
+                setTimeout(runTerminal, item.delay);
+            }
+        }
+
+        // Trigger the logs after a short initial system spin-up
+        setTimeout(runTerminal, 1000);
+    </script>
+</body>
+</html>
